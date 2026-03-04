@@ -40,6 +40,10 @@ just doctor          # Check prerequisites
 
 Override the Godot binary: `GODOT=/path/to/godot just test`
 
+## Working Style
+
+Stop and think before every action. Do not react. Do not throw solutions at a problem until one sticks. If your first attempt is wrong, that means you don't understand the problem yet  stop, read, and think before trying again. Panicking and iterating through wrong fixes wastes everyone's time and creates new problems.
+
 ## Coding Conventions
 
 - Use typed variables: `var x: float = 0.0`

@@ -22,11 +22,7 @@ jobs:
           use-dotnet: false
 
       - name: Install GdUnit4
-        run: |
-          GDUNIT4_VERSION="v4.4.1"
-          mkdir -p addons/gdUnit4
-          curl -sL "https://github.com/MikeSchulze/gdUnit4/archive/refs/tags/${GDUNIT4_VERSION}.tar.gz" | \
-            tar xz --strip-components=2 -C addons/gdUnit4 "gdUnit4-${GDUNIT4_VERSION#v}/addons/gdUnit4"
+        run: just install-gdunit
 
       - name: Import project
         run: godot --headless --import 2>/dev/null || true

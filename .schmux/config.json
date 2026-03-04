@@ -1,12 +1,8 @@
 {
   "quick_launch": [
     {
-      "name": "unit-tests",
-      "command": "just test-unit"
-    },
-    {
-      "name": "integration-tests",
-      "command": "just test-integration"
+      "name": "test",
+      "command": "just test"
     }
   ]
 }

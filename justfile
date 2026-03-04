@@ -4,9 +4,28 @@
 # Default Godot binary (override with GODOT=/path/to/godot)
 godot := env("GODOT", if os() == "macos" { "/Applications/Godot.app/Contents/MacOS/Godot" } else { "godot" })
 
+# GdUnit4 version for install-gdunit
+gdunit4_version := "v6.1.1"
+
 # Show all available commands
 default:
     @just --list
+
+# Install GdUnit4 test framework
+install-gdunit:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    VER="{{ gdunit4_version }}"
+    echo "Installing GdUnit4 ${VER}..."
+    mkdir -p addons/gdUnit4
+    curl -sL "https://github.com/MikeSchulze/gdUnit4/archive/refs/tags/${VER}.tar.gz" | \
+        tar xz --strip-components=3 -C addons/gdUnit4 "gdUnit4-${VER#v}/addons/gdUnit4"
+    echo "GdUnit4 installed to addons/gdUnit4/"
+
+# Remove gitignored dev dependencies
+clean:
+    rm -rf addons/gdUnit4
+    rm -rf .godot
 
 # Check all required tools are installed
 doctor:
@@ -33,10 +52,17 @@ doctor:
     fi
     check docker "docker --version"
     echo ""
-    if [[ -d "addons/gdUnit4" ]]; then
-        echo "GdUnit4: installed"
+    if [[ -f "addons/gdUnit4/plugin.cfg" ]]; then
+        installed_ver=$(grep '^version=' addons/gdUnit4/plugin.cfg | cut -d'"' -f2)
+        expected_ver="{{ gdunit4_version }}"
+        if [[ "v${installed_ver}" == "$expected_ver" ]]; then
+            printf "  %-12s %s\n" "GdUnit4" "${installed_ver}"
+        else
+            printf "  %-12s %s (expected %s, run: just install-gdunit)\n" "GdUnit4" "${installed_ver}" "$expected_ver"
+            ok=false
+        fi
     else
-        echo "GdUnit4: NOT INSTALLED (copy into addons/gdUnit4/)"
+        printf "  %-12s NOT INSTALLED (run: just install-gdunit)\n" "GdUnit4"
         ok=false
     fi
     echo ""
@@ -109,4 +135,49 @@ test-integration:
     exit "${PIPESTATUS[0]}"
 
 # Run all tests
-test: test-unit
+test:
+    #!/usr/bin/env bash
+    set +e
+    logfile=$(mktemp)
+    summary=""
+    failed=false
+    for suite in test-unit test-integration; do
+        echo ""
+        echo "--- $suite ---"
+        start=$SECONDS
+        just "$suite" 2>&1 | tee -a "$logfile"
+        exit_code=${PIPESTATUS[0]}
+        elapsed=$((SECONDS - start))
+        if [ $exit_code -eq 0 ]; then
+            summary="$summary$(printf '  %-25s PASS  %3ds\n' "$suite" "$elapsed")\n"
+        else
+            summary="$summary$(printf '  %-25s FAIL  %3ds\n' "$suite" "$elapsed")\n"
+            failed=true
+        fi
+    done
+    echo ""
+    echo "==============================="
+    echo "  15 Slowest Tests"
+    echo "==============================="
+    # Parse per-test timings from GdUnit4 (name PASSED NNms)
+    sed 's/\x1b\[[0-9;]*m//g' "$logfile" | \
+        grep -E '>\s+\S+.*PASSED\s+[0-9]+ms$' | \
+        grep -v 'Statistics:' | \
+        sed -E 's/[[:space:]]*PASSED[[:space:]]+([0-9]+)ms$/\t\1/' | \
+        sed -E 's/^[[:space:]]*//' | \
+        awk -F'\t' '{printf "%06d\t%s\n", $2, $1}' | \
+        sort -rn | head -15 | \
+        awk -F'\t' '{printf "  %6dms  %s\n", $1+0, $2}'
+    rm -f "$logfile"
+    echo ""
+    echo "==============================="
+    echo "  Suite Summary"
+    echo "==============================="
+    printf "$summary"
+    echo "==============================="
+    if $failed; then
+        echo "  SOME TESTS FAILED"
+        exit 1
+    else
+        echo "  ALL TESTS PASSED"
+    fi
