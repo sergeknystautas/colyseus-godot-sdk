@@ -1,0 +1,32 @@
+extends GdUnitTestSuite
+
+func test_message_type_values():
+	assert_int(Protocol.MessageType.HANDSHAKE).is_equal(9)
+	assert_int(Protocol.MessageType.JOIN_ROOM).is_equal(10)
+	assert_int(Protocol.MessageType.ERROR).is_equal(11)
+	assert_int(Protocol.MessageType.LEAVE_ROOM).is_equal(12)
+	assert_int(Protocol.MessageType.ROOM_DATA).is_equal(13)
+	assert_int(Protocol.MessageType.ROOM_STATE).is_equal(14)
+	assert_int(Protocol.MessageType.ROOM_STATE_PATCH).is_equal(15)
+	assert_int(Protocol.MessageType.ROOM_DATA_BYTES).is_equal(17)
+	assert_int(Protocol.MessageType.PING).is_equal(18)
+
+func test_schema_type_values():
+	assert_int(Protocol.SchemaType.NULL).is_equal(0x01)
+	assert_int(Protocol.SchemaType.BOOLEAN).is_equal(0x02)
+	assert_int(Protocol.SchemaType.STRING).is_equal(0x03)
+	assert_int(Protocol.SchemaType.NUMBER).is_equal(0x04)
+	assert_int(Protocol.SchemaType.INT8).is_equal(0x05)
+	assert_int(Protocol.SchemaType.UINT8).is_equal(0x06)
+	assert_int(Protocol.SchemaType.INT16).is_equal(0x07)
+	assert_int(Protocol.SchemaType.UINT16).is_equal(0x08)
+	assert_int(Protocol.SchemaType.INT32).is_equal(0x09)
+	assert_int(Protocol.SchemaType.UINT32).is_equal(0x0A)
+	assert_int(Protocol.SchemaType.INT64).is_equal(0x0B)
+	assert_int(Protocol.SchemaType.UINT64).is_equal(0x0C)
+	assert_int(Protocol.SchemaType.FLOAT32).is_equal(0x0D)
+	assert_int(Protocol.SchemaType.FLOAT64).is_equal(0x0E)
+	assert_int(Protocol.SchemaType.MAP).is_equal(0x0F)
+	assert_int(Protocol.SchemaType.ARRAY).is_equal(0x10)
+	assert_int(Protocol.SchemaType.SET).is_equal(0x11)
+	assert_int(Protocol.SchemaType.COLLECTION).is_equal(0x12)

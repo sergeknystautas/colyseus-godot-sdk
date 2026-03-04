@@ -1,0 +1,7 @@
+# Normalize line endings
+* text=auto eol=lf
+
+# Asset Library: only ship addons/ directory
+*                       export-ignore
+/addons                -export-ignore
+/addons/**             -export-ignore

@@ -1,0 +1,9 @@
+# Godot
+.godot/
+*.uid
+
+# Test framework (dev dependency — install separately)
+addons/gdUnit4/
+
+# Test reports
+reports/
