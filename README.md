@@ -28,14 +28,39 @@ No native binaries, no compilation — just `.gd` files that work on every Godot
 
 ### Git submodule
 
+Add the SDK as a git submodule in your project. The submodule lives outside your Godot project directory — we then create a symlink so Godot can see it.
+
+**Why a symlink?** Godot can only load scripts under its project root (the directory containing `project.godot`). The submodule lives elsewhere, so the symlink bridges the two. This keeps one source of truth while making the files visible to the engine at `res://addons/colyseus/`.
+
+From your **repository root** (not your Godot project directory):
+
 ```bash
-git submodule add https://github.com/<org>/colyseus-godot-sdk .deps/colyseus-sdk
-ln -s ../../.deps/colyseus-sdk/addons/colyseus addons/colyseus
+# 1. Add the submodule
+git submodule add https://github.com/sergeknystautas/colyseus-godot-sdk .deps/colyseus-sdk
+
+# 2. Symlink into your Godot project's addons/ directory
+#    Adjust the path if your Godot project isn't at the repo root.
+#    The symlink target is relative to where the symlink lives.
+cd <your-godot-project>/addons
+ln -s ../../.deps/colyseus-sdk/addons/colyseus colyseus
 ```
+
+Verify it worked — you should see the SDK source:
+```bash
+ls <your-godot-project>/addons/colyseus/src/
+# client/  protocol/  room/  schema/
+```
+
+**Windows:** Symlinks require Developer Mode or an elevated shell. Use `mklink /D` instead:
+```cmd
+mklink /D addons\colyseus ..\..\\.deps\colyseus-sdk\addons\colyseus
+```
+
+**Git note:** Git tracks symlinks as-is on macOS/Linux. On Windows, set `git config core.symlinks true` before cloning, or use `git clone -c core.symlinks=true`.
 
 ### Manual copy
 
-Clone this repository and copy the `addons/colyseus/` directory into your project's `addons/` folder.
+Clone this repository and copy the `addons/colyseus/` directory into your Godot project's `addons/` folder. The downside: updates require manually re-copying.
 
 ## Setup
 
